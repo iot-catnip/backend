@@ -5,8 +5,9 @@ import DataStoreController from "../../extensions/dataStore/DataStoreController"
 
 export default class loginController extends controller{
     async index(){
-        let username = this.request.body.username;
-        let password = this.request.body.password;
+        console.log(this.request.body)
+        let username = this.request.body[0];
+        let password = this.request.body[1];
         let users: any = await utilisateur.query()
             .select("username")
             .where("username", "=", username)

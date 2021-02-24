@@ -93,7 +93,7 @@ export default {
   methods:{
     login:function (event){
       event.preventDefault();
-      axios.post('https://localhost/api/login',[this.loginField,this.passField])
+      axios.post('/api/login',[this.loginField,this.passField])
           .then(response => {
             let token = response.data.token
             localStorage.setItem('user-token', token)
