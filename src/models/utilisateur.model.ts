@@ -13,18 +13,6 @@ export class utilisateur extends Model {
         return 'utilisateurs';
     }
 
-    static afterInsert({ inputItems }: any) {
-        subController.index('utilisateur', inputItems[0], 'insert')
-      }
-
-    static afterUpdate({inputItems}: any){
-    subController.index('utilisateur', inputItems[0], 'update')
-    }
-
-    static afterDelete(){
-    subController.index('utilisateur', {}, 'delete')
-    }
-
     static get jsonSchema() {
         return {
             type: 'object',
