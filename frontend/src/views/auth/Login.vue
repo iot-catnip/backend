@@ -8,9 +8,9 @@
           <div class="flex-auto px-4 lg:px-10 py-10 pt-0">
             <div class="rounded-t mb-0 px-6 py-6">
               <div class="text-center mb-3">
-                <h6 class="text-gray-600 text-sm font-bold">
-                  Sign up with
-                </h6>
+                <h1 class="text-sm font-bold">
+                  Se connecter
+                </h1>
               </div>
               <form>
                 <div class="relative w-full mb-3">
@@ -82,7 +82,7 @@
 </template>
 <script>
 
-import axios from 'axios';
+import {loginRoutine} from '../../script/login'
 
 export default {
   data() {
@@ -93,19 +93,11 @@ export default {
     }
   },
   methods:{
-    login:function (event){
-      event.preventDefault();
-      axios.post('/api/login',[this.loginField,this.passField,this.rememberMe])
-          .then(response => {
-            let token = response.data.token;
-            localStorage.setItem('user-token', token);
-            this.$router.push('/admin/dashboard');
-          })
-          .catch(error => {
-            console.log(error)
-            this.errored = true
-          })
-          .finally(() => this.loading = false)
+    login: function () {
+      const {loginField, passField, rememberMe} = this
+      loginRoutine({loginField, passField, rememberMe}).then(() => {
+        this.$router.push('/')
+      })
     }
   }
 };

@@ -32,30 +32,50 @@ import Register from "@/views/auth/Register.vue";
 import Landing from "@/views/Landing.vue";
 import Profile from "@/views/Profile.vue";
 import Index from "@/views/Index.vue";
+import axios from "axios";
 
 // routes
 
 const routes = [
   {
+    path: "*",
+    redirect: "/"
+  },
+  {
     path: "/admin",
     redirect: "/admin/dashboard",
     component: Admin,
+    meta: {
+      requiresAuth: true,
+    },
     children: [
       {
         path: "/admin/dashboard",
         component: Dashboard,
+        meta: {
+          requiresAuth: true,
+        }
       },
       {
         path: "/admin/settings",
         component: Settings,
+        meta: {
+          requiresAuth: true,
+        }
       },
       {
         path: "/admin/tables",
         component: Tables,
+        meta: {
+          requiresAuth: true,
+        }
       },
       {
         path: "/admin/maps",
         component: Maps,
+        meta: {
+          requiresAuth: true,
+        }
       },
     ],
   },
@@ -65,8 +85,10 @@ const routes = [
     component: Auth,
     children: [
       {
+        name:'login',
         path: "/auth/login",
         component: Login,
+
       },
       {
         path: "/auth/register",
@@ -77,16 +99,24 @@ const routes = [
   {
     path: "/landing",
     component: Landing,
+    meta: {
+      requiresAuth: true,
+    }
   },
   {
     path: "/profile",
     component: Profile,
+    meta: {
+      requiresAuth: true,
+    }
   },
   {
     path: "/",
     component: Index,
-  },
-  { path: "*", redirect: "/" },
+    meta: {
+      requiresAuth: true,
+    }
+  }
 ];
 
 // app config
@@ -95,9 +125,29 @@ Vue.config.productionTip = false;
 
 Vue.use(VueRouter);
 
+// If connected automatically add token to every request
+const token = localStorage.getItem('user-token')
+if (token) {
+  axios.defaults.headers.common['Authorization'] = token
+}
+
 const router = new VueRouter({
+  mode: "history",
   routes,
 });
+
+router.beforeEach((to, from, next) => {
+
+  if (to.matched.some(record => record.meta.requiresAuth)) {
+    if (!localStorage.token) {
+      next({
+        name: 'login'
+      })
+    }
+  }
+  next()
+});
+
 
 new Vue({
   router,
