@@ -18,13 +18,13 @@
                       class="block uppercase text-gray-700 text-xs font-bold mb-2"
                       htmlFor="grid-password"
                   >
-                    Login
+                    Identifiant
                   </label>
                   <input
-                      v-model="loginField"
+                      v-model="username"
                       type="text"
                       class="px-3 py-3 placeholder-gray-400 text-gray-700 bg-white rounded text-sm shadow focus:outline-none focus:shadow-outline w-full ease-linear transition-all duration-150"
-                      placeholder="Login"
+                      placeholder="Identifiant"
                   />
                 </div>
 
@@ -33,26 +33,33 @@
                       class="block uppercase text-gray-700 text-xs font-bold mb-2"
                       htmlFor="grid-password"
                   >
-                    Password
+                    Mot de passe
                   </label>
                   <input
-                      v-model="passField"
+                      v-model="password"
                       type="password"
                       class="px-3 py-3 placeholder-gray-400 text-gray-700 bg-white rounded text-sm shadow focus:outline-none focus:shadow-outline w-full ease-linear transition-all duration-150"
-                      placeholder="Password"
+                      placeholder="Mot de passe"
                   />
                 </div>
                 <div>
                   <label class="inline-flex items-center cursor-pointer">
                     <input
                         id="customCheckLogin"
-                        v-model="rememberMe"
+                        v-model="remember"
                         type="checkbox"
                         class="form-checkbox text-gray-800 ml-1 w-5 h-5 ease-linear transition-all duration-150"
                     />
                     <span class="ml-2 text-sm font-semibold text-gray-700">
-                    Remember me
+                    Se souvenir de moi
                   </span>
+                  </label>
+                </div>
+                <div v-if="error">
+                  <label class="inline-flex items-center cursor-pointer">
+                    <span class="ml-2 text-sm font-semibold text-red-500">
+                      {{ errMessage }}
+                    </span>
                   </label>
                 </div>
 
@@ -69,34 +76,50 @@
             </div>
           </div>
         </div>
+        <!--
         <div class="flex flex-wrap mt-6 relative">
           <div class="w-1/2">
             <a href="javascript:void(0)" class="text-gray-300">
               <small>Mot de passe oublier?</small>
             </a>
           </div>
-        </div>
+        </div>-->
       </div>
     </div>
   </div>
 </template>
 <script>
 
-import {loginRoutine} from '../../script/login'
+import {loginRoutine} from '../../script/auth'
 
 export default {
   data() {
     return {
-      loginField:'',
-      passField:'',
-      rememberMe:false,
+      username:'',
+      password:'',
+      remember:false,
+      error:false,
+      errMessage:null,
     }
   },
   methods:{
     login: function () {
-      const {loginField, passField, rememberMe} = this
-      loginRoutine({loginField, passField, rememberMe}).then(() => {
-        this.$router.push('/')
+      const {username, password, remember} = this
+      loginRoutine({username, password, remember}).then(() => {
+        //Reset error values to avoid somme issus
+        this.error=false;
+        this.errMessage=null;
+        //Redirect to main route
+        this.$router.push('/');
+      }).catch((err)=>{
+        console.log(err);
+        this.error=true;
+        //Check if error is expected error or not
+        if (err.data.success===false){
+          this.errMessage="Votre identifiant ou votre mot de passe et incorrect"
+        }else{
+          this.errMessage="Une erreur inconnue c'est produite"
+        }
       })
     }
   }

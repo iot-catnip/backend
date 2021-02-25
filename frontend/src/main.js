@@ -25,7 +25,6 @@ import Maps from "@/views/admin/Maps.vue";
 // views for Auth layout
 
 import Login from "@/views/auth/Login.vue";
-import Register from "@/views/auth/Register.vue";
 
 // views without layouts
 
@@ -33,14 +32,53 @@ import Landing from "@/views/Landing.vue";
 import Profile from "@/views/Profile.vue";
 import Index from "@/views/Index.vue";
 import axios from "axios";
+import {logoutRoutine} from "@/script/auth";
 
 // routes
 
 const routes = [
+  /**
+   * Main Paths
+   */
   {
     path: "*",
-    redirect: "/"
+    redirect: "/",
   },
+  {
+    path: "/",
+    component: Index,
+    meta: {
+      requiresAuth: true,
+    }
+  },
+  /**
+   * Authentification route
+   */
+  {
+    path: "/auth",
+    redirect: "/auth/login",
+    component: Auth,
+    children: [
+      {
+        name:'login',
+        path: "/auth/login",
+        component: Login,
+
+      },
+      {
+        name:'logout',
+        path: "/auth/logout",
+        beforeEnter: (to,from,next) => {
+          logoutRoutine.then(() => {
+            next({name:'login'});
+          })
+        }
+      }
+    ],
+  },
+  /**
+   * Dashboard Managements Route
+   */
   {
     path: "/admin",
     redirect: "/admin/dashboard",
@@ -79,23 +117,9 @@ const routes = [
       },
     ],
   },
-  {
-    path: "/auth",
-    redirect: "/auth/login",
-    component: Auth,
-    children: [
-      {
-        name:'login',
-        path: "/auth/login",
-        component: Login,
-
-      },
-      {
-        path: "/auth/register",
-        component: Register,
-      },
-    ],
-  },
+  /**
+   * Other page (TODO: delete later)
+   */
   {
     path: "/landing",
     component: Landing,
@@ -110,13 +134,6 @@ const routes = [
       requiresAuth: true,
     }
   },
-  {
-    path: "/",
-    component: Index,
-    meta: {
-      requiresAuth: true,
-    }
-  }
 ];
 
 // app config
@@ -137,15 +154,13 @@ const router = new VueRouter({
 });
 
 router.beforeEach((to, from, next) => {
+  const loggedIn = localStorage.getItem('user-token');
+  const isAuth = to.matched.some((record) => record.meta.requiresAuth);
 
-  if (to.matched.some(record => record.meta.requiresAuth)) {
-    if (!localStorage.token) {
-      next({
-        name: 'login'
-      })
-    }
+  if (isAuth && !loggedIn) {
+    return next({ name: "login" });
   }
-  next()
+  next();
 });
 
 
