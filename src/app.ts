@@ -156,4 +156,9 @@ async function init() {
 }
 var io = init()
 
+//to prevent 404 error and always redirect request to vue-js
+app.get('*', (req:any, res:any) => {
+  res.sendFile(path.join(__dirname, 'public/index.html'));
+})
+
 export default io
