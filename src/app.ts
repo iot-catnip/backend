@@ -7,7 +7,7 @@ import cookieParser from 'cookie-parser';
 var sitemap = require('express-sitemap')();
 const sassMiddleware = require('node-sass-middleware');
 require('dotenv').config()
-import logger from 'morgan';
+//import logger from 'morgan';
 import SocketIO from "socket.io";
 
 
