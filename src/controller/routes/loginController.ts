@@ -7,11 +7,11 @@ export default class loginController extends controller{
     async index(){
         const {username, password, remember} = this.request.body;
         if(password != undefined && username != undefined) {
-            const hash = createHash('sha256').update(password).digest('base64');
+            const passwordHash = createHash('sha256').update(password).digest('base64');
             const users: any = await utilisateur.query()
                 .select("username")
                 .where("username", "=", username)
-                .where("password", "=", hash);
+                .where("password", "=", passwordHash);
             if(users[0] !== undefined)
             {
                 randomBytes(256, (err, buf) => {
