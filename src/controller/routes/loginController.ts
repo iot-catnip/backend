@@ -6,14 +6,13 @@ import TimedRemover from "../../extensions/timedRemover/TimedRemover";
 
 export default class loginController extends controller{
     async index(){
-        let username = this.request.body[0];
-        let password = this.request.body[1];
+        const {username, password, remember} = this.request.body;
         if(password != undefined && username != undefined) {
-            password = createHash('sha256').update(password).digest('base64');
-            let users: any = await utilisateur.query()
+            const passwordHash = createHash('sha256').update(password).digest('base64');
+            const users: any = await utilisateur.query()
                 .select("username")
                 .where("username", "=", username)
-                .where("password", "=", password);
+                .where("password", "=", passwordHash);
             if(users[0] !== undefined)
             {
                 randomBytes(20, (err, buf) => {

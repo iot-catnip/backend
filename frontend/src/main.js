@@ -25,68 +25,115 @@ import Maps from "@/views/admin/Maps.vue";
 // views for Auth layout
 
 import Login from "@/views/auth/Login.vue";
-import Register from "@/views/auth/Register.vue";
 
 // views without layouts
 
 import Landing from "@/views/Landing.vue";
 import Profile from "@/views/Profile.vue";
 import Index from "@/views/Index.vue";
+import axios from "axios";
+import {logoutRoutine} from "@/script/auth";
 
 // routes
 
 const routes = [
+  /**
+   * Main Paths
+   */
   {
-    path: "/admin",
-    redirect: "/admin/dashboard",
-    component: Admin,
-    children: [
-      {
-        path: "/admin/dashboard",
-        component: Dashboard,
-      },
-      {
-        path: "/admin/settings",
-        component: Settings,
-      },
-      {
-        path: "/admin/tables",
-        component: Tables,
-      },
-      {
-        path: "/admin/maps",
-        component: Maps,
-      },
-    ],
+    path: "*",
+    redirect: "/",
   },
+  {
+    path: "/",
+    component: Index,
+    meta: {
+      requiresAuth: true,
+    }
+  },
+  /**
+   * Authentification route
+   */
   {
     path: "/auth",
     redirect: "/auth/login",
     component: Auth,
     children: [
       {
+        name:'login',
         path: "/auth/login",
         component: Login,
+
       },
       {
-        path: "/auth/register",
-        component: Register,
+        name:'logout',
+        path: "/auth/logout",
+        beforeEnter: (to,from,next) => {
+          logoutRoutine.then(() => {
+            next({name:'login'});
+          })
+        }
+      }
+    ],
+  },
+  /**
+   * Dashboard Managements Route
+   */
+  {
+    path: "/admin",
+    redirect: "/admin/dashboard",
+    component: Admin,
+    meta: {
+      requiresAuth: true,
+    },
+    children: [
+      {
+        path: "/admin/dashboard",
+        component: Dashboard,
+        meta: {
+          requiresAuth: true,
+        }
+      },
+      {
+        path: "/admin/settings",
+        component: Settings,
+        meta: {
+          requiresAuth: true,
+        }
+      },
+      {
+        path: "/admin/tables",
+        component: Tables,
+        meta: {
+          requiresAuth: true,
+        }
+      },
+      {
+        path: "/admin/maps",
+        component: Maps,
+        meta: {
+          requiresAuth: true,
+        }
       },
     ],
   },
+  /**
+   * Other page (TODO: delete later)
+   */
   {
     path: "/landing",
     component: Landing,
+    meta: {
+      requiresAuth: true,
+    }
   },
   {
     path: "/profile",
     component: Profile,
+    meta: {
+      requiresAuth: true,
+    }
   },
-  {
-    path: "/",
-    component: Index,
-  },
-  { path: "*", redirect: "/" },
 ];
 
 // app config
@@ -95,9 +142,27 @@ Vue.config.productionTip = false;
 
 Vue.use(VueRouter);
 
+// If connected automatically add token to every request
+const token = localStorage.getItem('user-token')
+if (token) {
+  axios.defaults.headers.common['Authorization'] = token
+}
+
 const router = new VueRouter({
+  mode: "history",
   routes,
 });
+
+router.beforeEach((to, from, next) => {
+  const loggedIn = localStorage.getItem('user-token');
+  const isAuth = to.matched.some((record) => record.meta.requiresAuth);
+
+  if (isAuth && !loggedIn) {
+    return next({ name: "login" });
+  }
+  next();
+});
+
 
 new Vue({
   router,
