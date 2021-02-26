@@ -2,7 +2,6 @@ import controller from "../../app/controller";
 import {createHash, randomBytes} from "crypto";
 import {utilisateur} from "../../models/utilisateur.model";
 import DataStoreController from "../../extensions/dataStore/DataStoreController";
-import TimedRemover from "../../extensions/timedRemover/TimedRemover";
 
 export default class loginController extends controller{
     async index(){
