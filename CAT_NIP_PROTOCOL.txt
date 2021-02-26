@@ -14,7 +14,7 @@ Hello Frame
 |    Checksum     |
 +-+-+-+-+-+-+-+-+-+
 
-Data Send Frame
+Data Frame
 0                 1                 2                 3
  0 1 2 3 4 5 6 7 8 0 1 2 3 4 5 6 7 8 0 1 2 3 4 5 6 7 8
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -27,7 +27,7 @@ Status Frame
 0                 1                 2                 3
  0 1 2 3 4 5 6 7 8 0 1 2 3 4 5 6 7 8 0 1 2 3 4 5 6 7 8
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|   Start Frame   |  Packet Length  |    Checksum     |
+|   Start Frame   |   Packet Type   |    Checksum     |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 +===========================+
@@ -38,7 +38,7 @@ START FRAME
     La start frame permet de déclencher l'analyse d'un socket entrant elle est toujours égales à 0x02
 
 PACKET LENGTH
-    Le packet length est le nombre d'octet contenu dans la tram active
+    Le packet length est le nombre de bit contenu dans la tram active
 
 PACKET TYPE
     STATUS PACKET
