@@ -9,6 +9,18 @@ export class utilisateur extends Model {
     email!: string;
     password!: string;
 
+    static afterInsert({ inputItems }: any) {
+        subController.index('utilisateur', inputItems[0], 'insert')
+    }
+
+    static afterUpdate({inputItems}: any){
+        subController.index('utilisateur', inputItems[0], 'update')
+    }
+
+    static afterDelete(){
+        subController.index('utilisateur', {}, 'delete')
+    }
+
     static get tableName() {
         return 'utilisateurs';
     }
