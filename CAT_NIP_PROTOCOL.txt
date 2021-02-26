@@ -2,57 +2,59 @@
 |  CAT NIP : NANACHI IOTUTURU PROTOCOL |
 +--------------------------------------+
 
-Hello trame
-0                   1                   2                   3
-    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |   start trame   |  packet lenght    |    packet type      |
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |                        Client MacAdresse                  |
-   |                                                           |
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |   checksum      |
-   +-+-+-+-+-+-+-+-+-+
+Hello Frame
+0                 1                 2                 3
+ 0 1 2 3 4 5 6 7 8 0 1 2 3 4 5 6 7 8 0 1 2 3 4 5 6 7 8
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|   Start Frame   |  Packet Length  |   Packet Type   |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                 Client Mac Adresse                  |
+|                                                     |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|    Checksum     |
++-+-+-+-+-+-+-+-+-+
 
-Data send trame
- 0                   1                   2                   3
-    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |   start trame   |  packet lenght    |    packet type      |
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |               data                  |       checksum      |
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+Data Send Frame
+0                 1                 2                 3
+ 0 1 2 3 4 5 6 7 8 0 1 2 3 4 5 6 7 8 0 1 2 3 4 5 6 7 8
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|   Start Frame   |  Packet Length  |   Packet Type   |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|               Data                |     Checksum    |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-Status trame
- 0                   1                   2                   3
-    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |   start trame   |   packet type     |       checksum      |
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+Status Frame
+0                 1                 2                 3
+ 0 1 2 3 4 5 6 7 8 0 1 2 3 4 5 6 7 8 0 1 2 3 4 5 6 7 8
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|   Start Frame   |  Packet Length  |    Checksum     |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-Start trame :
-Toujour egale à 02
+Start Frame :
+Toujours égales à 02
 
 Packet type :
 
-Packet commencant par 2 sont des packet de status 
-* 2A : Hello trame : trame envoyé lorsque la prise souhaite se connecter au serveur -> tant que le serveur ne retourne pas une alive trame de type 2B, la prise continue d'envoyer
-* 2B : Status trame : trame envoyé par le server ou la prise afin de savoir si la prise est en vie
-* 2C : Status trame : trame envoyé pour informer la prise que les données ont été reçues
+Packet commençant par 2 sont des packet de status
+* 2A : Hello Frame : Frame envoyé lorsque la prise souhaite se connecter au serveur
+      -> tant que le serveur ne retourne pas un Status Frame de type 2B, le packet continue d'être envoyer
+* 2B : Status Frame : Frame envoyé par le server ou la prise afin de savoir si la prise est en vie
+* 2C : Status Frame : Frame envoyé pour informer la prise que les données ont été reçues
 
 
-Packet commençant par 4 sont des packets de demmande de données
-* 4A : Status trame : Trame permettant de demander la mesure de la température
-* 4B : Status trame : Trame permettant de demander la mesure de l'humidité
-* 4C : Status trame : Trame permettant de demander la mesure des watt
-* 4D : Status trame : Trame permettant de demander si la prise et allumer ou éteindre
+Packet commençant par 4 sont des packets de demande de données
+* 4A : Status Frame : Frame permettant de demander la mesure de la température
+* 4B : Status Frame : Frame permettant de demander la mesure de l'humidité
+* 4C : Status Frame : Frame permettant de demander la mesure des watt
+* 4D : Status Frame : Frame permettant de demander si la prise et allumer ou éteindre
 
 Packet commençant par 5 sont des packets d'envoi de données
-* 5A : data send tram : trame permettant d'envoyer la température (et mutiplier par 1000 et envoyer sous forme d'entier)
-* 5B : data send tram : trame permetant d'envoyer l'humidité en % (et mutiplier par 1000 et envoyer sous forme d'entier)
-* 5C : data send tram : trame permettant d'envoyer la mesure de consommation en watt
-* 5D : data send tram : trame permettant d'indiquer si la prise est allumée ou éteinte.
+      -> tant que le serveur ne retourne pas une alive Frame de type 2C, les packets de données continue d'être envoyer.
+* 5A : data send tram : Frame permettant d'envoyer la température (et multiplier par 1000 et envoyer sous forme d'entier)
+* 5B : data send tram : Frame permettant d'envoyer l'humidité en % (et multiplier par 1000 et envoyer sous forme d'entier)
+* 5C : data send tram : Frame permettant d'envoyer la mesure de consommation en watt
+* 5D : data send tram : Frame permettant d'indiquer si la prise est allumée ou éteinte.
 
-Packet commançant par 6 sont des packets d'action sur la prise
-* 60 : Status trame : Eteindre la prise
-* 61 : Status trame : Allumer la prise
+Packet commandant par 6 sont des packets d'action sur la prise
+* 60 : Status Frame : Éteindre la prise
+* 61 : Status Frame : Allumer la prise
