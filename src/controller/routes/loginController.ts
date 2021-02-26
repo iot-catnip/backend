@@ -22,8 +22,7 @@ export default class loginController extends controller{
                     this.response.json(
                         {
                             success: true,
-                            token: buffer,
-                            loggedArray: loggedArray
+                            token: buffer
                         }
                     );
                     if(remember){
