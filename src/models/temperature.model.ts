@@ -20,7 +20,7 @@ export class temperature extends Model {
             modelClass: prise,
             join: {
                 from: 'temperatures.prise_id',
-                to: 'prises.prise_id'
+                to: 'prises.id'
             }
         }
     }

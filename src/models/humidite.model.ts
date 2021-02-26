@@ -20,7 +20,7 @@ export class humidite extends Model {
             modelClass: prise,
             join: {
                 from: 'humidites.prise_id',
-                to: 'prises.prise_id'
+                to: 'prises.id'
             }
         }
     }

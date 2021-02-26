@@ -20,7 +20,7 @@ export class watt extends Model {
             modelClass: prise,
             join: {
                 from: 'watts.prise_id',
-                to: 'prises.prise_id'
+                to: 'prises.id'
             }
         }
     }
