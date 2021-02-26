@@ -2,6 +2,7 @@ import controller from "../../app/controller";
 import {createHash, randomBytes} from "crypto";
 import {utilisateur} from "../../models/utilisateur.model";
 import DataStoreController from "../../extensions/dataStore/DataStoreController";
+import TimedRemover from "../../extensions/timedRemover/TimedRemover";
 
 export default class loginController extends controller{
     async index(){
@@ -15,7 +16,7 @@ export default class loginController extends controller{
                 .where("password", "=", password);
             if(users[0] !== undefined)
             {
-                randomBytes(256, (err, buf) => {
+                randomBytes(20, (err, buf) => {
                     let buffer = buf.toString("hex");
                     let datastore = DataStoreController.getInstance();
                     let loggedArray = datastore.addData("logged", []);
@@ -23,10 +24,11 @@ export default class loginController extends controller{
                     this.response.json(
                         {
                             success: true,
-                            token:  buf.toString("hex"),
+                            token: buffer,
                             loggedArray: loggedArray
                         }
                     );
+                    this.removeAt(buffer, "logged", 3600);
                 });
             }else{
                 this.response.json(
@@ -42,5 +44,18 @@ export default class loginController extends controller{
                 }
             );
         }
+    }
+
+    private removeAt(data: string, dataName: string, time: number){
+        time = time*1000
+        let datastore = DataStoreController.getInstance();
+        setTimeout(()=>{
+            try{
+                let arr = datastore.getData(dataName).filter((item: any) => item !== data)
+                datastore.setData(dataName, arr)
+            }catch (e) {
+
+            }
+        }, time)
     }
 }

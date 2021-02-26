@@ -34,4 +34,8 @@ export default class DataStoreController {
         return this.data;
     }
 
+    public setData(dataName: string, dataValue: any){
+        this.data[dataName] = dataValue;
+    }
+
 }
