@@ -27,7 +27,11 @@ export default class loginController extends controller{
                             loggedArray: loggedArray
                         }
                     );
-                    this.removeAt(buffer, "logged", 3600);
+                    if(remember){
+                        this.removeAt(buffer, "logged", 604800);
+                    }else{
+                        this.removeAt(buffer, "logged", 3600);
+                    }
                 });
             }else{
                 this.response.json(
