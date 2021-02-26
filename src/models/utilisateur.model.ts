@@ -10,15 +10,15 @@ export class utilisateur extends Model {
     password!: string;
 
     static afterInsert({ inputItems }: any) {
-        subController.index('utilisateurs', inputItems[0], 'insert')
+        subController.index('utilisateur', inputItems[0], 'insert')
     }
 
     static afterUpdate({inputItems}: any){
-        subController.index('utilisateurs', inputItems[0], 'update')
+        subController.index('utilisateur', inputItems[0], 'update')
     }
 
     static afterDelete(){
-        subController.index('utilisateurs', {}, 'delete')
+        subController.index('utilisateur', {}, 'delete')
     }
 
     static get tableName() {
