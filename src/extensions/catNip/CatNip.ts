@@ -55,33 +55,14 @@ export default class CatNip {
         this.checksum = null;
     }
 
-    public setPacketType(packetType: number) {
-        if ([
-            CatNip.STATUS_ALIVE,
-            CatNip.STATUS_RECEIVED,
-            CatNip.ASK_HUMIDITY,
-            CatNip.ASK_TEMPERATURE,
-            CatNip.ASK_WATT,
-            CatNip.ASK_IF_ON,
-            CatNip.ACTION_ON,
-            CatNip.ACTION_OFF,
-            CatNip.STATUS_HELLO,
-            CatNip.DATA_CONSUMATION,
-            CatNip.DATA_HUMIDITY,
-            CatNip.DATA_ON,
-            CatNip.DATA_TEMPERATURE,
-        ].includes(packetType)) {
-            this.packetType = packetType
-            return;
-        }
-        throw "Undefined packetType"
-    }
-
 
     /**
-     * EncodeTrame
+     * To encode frame into an Uint8Array
+     * Can throw lot of error
+     * Only STATUS frame can be encoded from server
+     * The encoded frame is return by function and can be also access by this.getFrame()
      */
-    public encodeFrame() {
+    public encodeFrame() : Uint8Array {
         if (this.frameType===null||this.packetLength===null){
             this.detectFrameType()
             if (this.frameType===null||this.packetLength===null){
@@ -104,18 +85,22 @@ export default class CatNip {
         if (this.frameType === CatNip.FRAME_STATUS) {
             let tramBuilder = [CatNip.START_TRAM, this.packetLength,this.packetType]
             tramBuilder.push(CatNip.calculateCheckSum(tramBuilder))
-            this.frame = new Uint8Array(tramBuilder)
-            return
+            return this.frame = new Uint8Array(tramBuilder)
         }
         throw "No frameType defined"
     }
 
+    /**
+     * To decode incoming packet (if the packet is not the expected one that will throw error)
+     * Every information that packet can contain was store in object itself
+     * @param buffer
+     */
     public decodeFrame(buffer:Buffer){
         this.frame = new Uint8Array(buffer);
         if (this.frame[0]===CatNip.START_TRAM){
             if (this.frame[1]/8===this.frame.length){
                 this.packetLength=this.frame[1]/8
-                this.setPacketType(this.frame[2])
+                this.setPacketType=this.frame[2]
                 if (this.packetType===null) throw "Undefined packetType"
                 this.detectFrameType();
                 switch (this.frameType){
@@ -164,7 +149,13 @@ export default class CatNip {
     }
 
 
-    public detectFrameType() {
+    /**
+     * This function will be detect the type of frame base of packetType
+     * Throw error if packetType is null
+     * Throw error if no frame type has been found
+     * @private
+     */
+    private detectFrameType() {
         if (this.packetType===null){
             throw "PacketType can't be null"
         }
@@ -200,10 +191,16 @@ export default class CatNip {
             this.packetLength = CatNip.FRAME_DATA_LENGTH;
         }
 
-        throw "No Packet Type Indicate";
+        throw "No Frame Type Found";
     }
 
-    public static calculateCheckSum(bytesArr: Array<number>|Uint8Array) {
+    /**
+     * Calculate the check sum of array
+     * If the array is an Uint8Array the last item will be automatically remove
+     * @param bytesArr
+     * @return number
+     */
+    public static calculateCheckSum(bytesArr: Array<number>|Uint8Array) : number {
         if (bytesArr instanceof Uint8Array){
             bytesArr = bytesArr.subarray(0,bytesArr.length-1) //remove the checksum from frame to recalculate it
         }
@@ -214,10 +211,16 @@ export default class CatNip {
         return sum / 16 >> 0;
     }
 
-    public static concatenateBytes(bytesArray: Uint8Array) {
+    /**
+     * Function able to concatenate every bytes of an Uint8Array
+     * Into single cells of Uint32Array
+     * Useful to get value that encode in more than 8 bits
+     * @param bytesArray
+     * @return Uint32Array
+     */
+    public static concatenateBytes(bytesArray: Uint8Array) : Uint32Array {
         let returnedValues = new Uint32Array(1);
         let bitNumber=(bytesArray.length*8)-1;
-        //console.log(bytesArray.length)
         for (let i = 0; i < bytesArray.length; i++) {
             for (let j=7;j>-1;j--){
                 //console.log("bitNum",bitNumber,"i:",i," j:",j," bit:",this.readBit(bytesArray,i,j))
@@ -228,20 +231,67 @@ export default class CatNip {
         return returnedValues
     }
 
-    public static readBit(buffer:any, i:number, bit:number){
+    /**
+     * To read single bit of bytes array
+     * @param buffer bytes array
+     * @param i the item number of array
+     * @param bit the bit number that you want view
+     * @return 0|1 the bit at selected address
+     */
+    public static readBit(buffer:Uint8Array|Uint16Array|Uint32Array, i:number, bit:number){
         return (buffer[i] >> bit) % 2;
     }
 
-    public static setBit(buffer:any, i:number, bit:number, value:number){
+    /**
+     * To write single bit of bytes array
+     * @param buffer bytes array
+     * @param i the item number of array
+     * @param bit the bit number that you want edit
+     * @param value 0|1 to set binary value.
+     */
+    public static setBit(buffer:Uint8Array|Uint16Array|Uint32Array, i:number, bit:number, value:number){
         if(value == 0){
             buffer[i] &= ~(1 << bit);
-        }else{
+        }else if (value == 1){
             buffer[i] |= (1 << bit);
         }
     }
 
+    /**
+     * Setter !
+     */
+    
+    /**
+     * Set the packetType can throw exeption
+     * @param packetType
+     */
+    set setPacketType(packetType: number) {
+        if ([
+            CatNip.STATUS_ALIVE,
+            CatNip.STATUS_RECEIVED,
+            CatNip.ASK_HUMIDITY,
+            CatNip.ASK_TEMPERATURE,
+            CatNip.ASK_WATT,
+            CatNip.ASK_IF_ON,
+            CatNip.ACTION_ON,
+            CatNip.ACTION_OFF,
+            CatNip.STATUS_HELLO,
+            CatNip.DATA_CONSUMATION,
+            CatNip.DATA_HUMIDITY,
+            CatNip.DATA_ON,
+            CatNip.DATA_TEMPERATURE,
+        ].includes(packetType)) {
+            this.packetType = packetType
+            return;
+        }
+        throw "Undefined packetType"
+    }
 
-    public getFrame(){
+    /**
+     * Getter !
+     */
+
+    get getFrame(){
         if (this.frame.byteLength!=0)
             return this.frame;
         throw "No frame generated or set"
