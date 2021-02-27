@@ -1,3 +1,5 @@
+import CatNipError from "./CatNipError";
+
 export default class CatNip {
 
     public static START_TRAM = 0x02
@@ -58,28 +60,28 @@ export default class CatNip {
 
     /**
      * To encode frame into an Uint8Array
-     * Can throw lot of error
      * Only STATUS frame can be encoded from server
      * The encoded frame is return by function and can be also access by this.getFrame()
+     * @throws CatNipError
      */
     public encodeFrame() : Uint8Array {
         if (this.frameType===null||this.packetLength===null){
             this.detectFrameType()
             if (this.frameType===null||this.packetLength===null){
-                throw "Unexpected error"
+                throw new CatNipError(CatNipError.UNEXPECTED_ERROR,"frameType and/or packetLength not defined but should be defined")
             }
         }
 
         if (this.packetType===null){
-            throw "PacketType can't be null"
+            throw new CatNipError(CatNipError.CANT_BE_NULL,"PacketType")
         }
 
         if (this.frameType === CatNip.FRAME_HELLO) {
-            throw "Can't Encode Frame HELLO From The Server"
+            throw new CatNipError(CatNipError.ENCODE_FRAME_ERROR,`HELLO(${CatNip.FRAME_HELLO.toString(16)})`)
         }
 
         if (this.frameType === CatNip.FRAME_DATA) {
-            throw "Can't Encode Frame DATA From The Server"
+            throw new CatNipError(CatNipError.ENCODE_FRAME_ERROR,`DATA(${CatNip.FRAME_DATA.toString(16)})`)
         }
 
         if (this.frameType === CatNip.FRAME_STATUS) {
@@ -87,13 +89,14 @@ export default class CatNip {
             tramBuilder.push(CatNip.calculateCheckSum(tramBuilder))
             return this.frame = new Uint8Array(tramBuilder)
         }
-        throw "No frameType defined"
+        throw new CatNipError(CatNipError.UNKNOWN_TYPE_ERROR,this.frameType,"frameType")
     }
 
     /**
      * To decode incoming packet (if the packet is not the expected one that will throw error)
      * Every information that packet can contain was store in object itself
      * @param buffer
+     * @throws CatNipError
      */
     public decodeFrame(buffer:Buffer){
         this.frame = new Uint8Array(buffer);
@@ -101,7 +104,7 @@ export default class CatNip {
             if (this.frame[1]/8===this.frame.length){
                 this.packetLength=this.frame[1]/8
                 this.setPacketType=this.frame[2]
-                if (this.packetType===null) throw "Undefined packetType"
+                if (this.packetType===null) throw new CatNipError(CatNipError.CANT_BE_NULL,"PacketType")
                 this.detectFrameType();
                 switch (this.frameType){
                     case CatNip.FRAME_HELLO:
@@ -109,10 +112,10 @@ export default class CatNip {
                             this.clientMacAddress = this.frame.slice(3,9)
                             return true;
                         }
-                        throw "Wrong checksum"
+                        throw new CatNipError(CatNipError.DECODE_FRAME_ERROR,"Checksum","FRAME_HELLO")
                     case CatNip.FRAME_DATA:
                         if (CatNip.calculateCheckSum(this.frame)===this.frame[5]){
-                            const dataBytes = new Uint8Array([this.frame[3],this.frame[4]])
+                            const dataBytes = this.frame.slice(3,5)
                             this.checksum = this.frame[5]
 
                             if ([CatNip.DATA_TEMPERATURE,CatNip.DATA_HUMIDITY].includes(this.packetType)){
@@ -131,33 +134,32 @@ export default class CatNip {
                                 this.data = CatNip.concatenateBytes(dataBytes)[0]
                                 return true;
                             }
-                            throw "Wrong checksum"
                         }
-                        throw "Wrong checksum"
+                        throw new CatNipError(CatNipError.DECODE_FRAME_ERROR,"Checksum","FRAME_DATA")
                     case CatNip.FRAME_STATUS:
                         if (CatNip.calculateCheckSum(this.frame)===this.frame[3]){
                             this.checksum = this.frame[3]
                             return true;
                         }
-                        throw "Wrong checksum"
+                        throw new CatNipError(CatNipError.DECODE_FRAME_ERROR,"Checksum","FRAME_STATUS")
                     default:
-                        throw "unknown frame exception"
+                        throw new CatNipError(CatNipError.DECODE_FRAME_ERROR,"Unknown Frame : not a CATNIP frame")
                 }
             }
+            throw new CatNipError(CatNipError.DECODE_FRAME_ERROR,"Wrong Length : not a CATNIP frame")
         }
-        throw "Not CatNip frame"
+        throw new CatNipError(CatNipError.DECODE_FRAME_ERROR,"Not a CATNIP frame")
     }
 
 
     /**
      * This function will be detect the type of frame base of packetType
-     * Throw error if packetType is null
-     * Throw error if no frame type has been found
      * @private
+     * @throws CatNipError
      */
     private detectFrameType() {
         if (this.packetType===null){
-            throw "PacketType can't be null"
+            throw new CatNipError(CatNipError.CANT_BE_NULL,"PacketType")
         }
 
         if (this.packetType === CatNip.STATUS_HELLO){
@@ -191,7 +193,7 @@ export default class CatNip {
             this.packetLength = CatNip.FRAME_DATA_LENGTH;
         }
 
-        throw "No Frame Type Found";
+        throw new CatNipError(CatNipError.UNKNOWN_TYPE_ERROR,this.frameType,"frameType")
     }
 
     /**
@@ -262,8 +264,9 @@ export default class CatNip {
      */
     
     /**
-     * Set the packetType can throw exeption
+     * Set the packetType
      * @param packetType
+     * @throws CatNipError
      */
     set setPacketType(packetType: number) {
         if ([
@@ -284,7 +287,7 @@ export default class CatNip {
             this.packetType = packetType
             return;
         }
-        throw "Undefined packetType"
+        throw new CatNipError(CatNipError.UNKNOWN_TYPE_ERROR,this.packetType,"packetType")
     }
 
     /**
@@ -294,7 +297,7 @@ export default class CatNip {
     get getFrame(){
         if (this.frame.byteLength!=0)
             return this.frame;
-        throw "No frame generated or set"
+        throw new CatNipError(CatNipError.NOT_SET_ERROR,"frame")
     }
 
     get getFrameType(): number | null {
@@ -316,7 +319,7 @@ export default class CatNip {
     get getClientMacAddress(): string {
         let returnData='';
         if (this.clientMacAddress===null){
-            throw "Address not set"
+            throw new CatNipError(CatNipError.NOT_SET_ERROR,"clientMacAddress")
         }
         for (let i = 0; i < this.clientMacAddress.length; i++) {
             returnData+=this.clientMacAddress[i].toString(16)
