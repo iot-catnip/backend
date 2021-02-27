@@ -25,9 +25,3 @@ let b = new Uint8Array(a);
 //send tram
 s.write(b);
 s.end();
-
-const test = 0x12, test1 = 0x10
-const add = (a:number, b:number) => (a << Math.ceil(Math.log2(b)) + 1) + b;
-const arr = new Uint8Array([0x12,0x10])
-//console.log(parseInt(test.toString(2) + test1.toString(2), 2))
-console.log(CatNip.concatenateBytes(arr))
