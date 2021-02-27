@@ -195,13 +195,13 @@ export default class CatNip {
 
     public static concatenateBytes(bytesArray: Uint8Array) {
         let returnedValues = new Uint32Array(1);
-        let bitNumber=0;
-        console.log(bytesArray.length)
+        let bitNumber=(bytesArray.length*8)-1;
+        //console.log(bytesArray.length)
         for (let i = 0; i < bytesArray.length; i++) {
-            for (let j=9;j>0;j--){
-                console.log("bitNum",bitNumber,"i:",i," j:",j," bit:",this.readBit(bytesArray,i,j))
+            for (let j=7;j>-1;j--){
+                //console.log("bitNum",bitNumber,"i:",i," j:",j," bit:",this.readBit(bytesArray,i,j))
                 this.setBit(returnedValues,0,bitNumber,this.readBit(bytesArray,i,j))
-                bitNumber++
+                bitNumber--
             }
         }
         return returnedValues
