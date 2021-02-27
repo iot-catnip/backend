@@ -41,7 +41,7 @@ export default class CatNip {
     private frameType: number | null;
     private packetLength: number | null;
     private packetType: number | null;
-    private data: number | null;
+    private data: number | boolean | null;
     private clientMacAddress: Uint8Array | null;
     private checksum: number | null;
 
@@ -116,19 +116,40 @@ export default class CatNip {
             if (this.frame[1]/8===this.frame.length){
                 this.packetLength=this.frame[1]/8
                 this.setPacketType(this.frame[2])
+                if (this.packetType===null) throw "Undefined packetType"
                 this.detectFrameType();
                 switch (this.frameType){
                     case CatNip.FRAME_HELLO:
-                        //@todo
-                        break;
+                        if (CatNip.calculateCheckSum(this.frame)===this.frame[9]) {
+                            this.clientMacAddress = this.frame.slice(3,9)
+                            return true;
+                        }
+                        throw "Wrong checksum"
                     case CatNip.FRAME_DATA:
-                        //@todo
-                        //CatNip.concatenateBytes()
-                        break;
+                        if (CatNip.calculateCheckSum(this.frame)===this.frame[5]){
+                            const dataBytes = new Uint8Array([this.frame[3],this.frame[4]])
+                            this.checksum = this.frame[5]
+
+                            if ([CatNip.DATA_TEMPERATURE,CatNip.DATA_HUMIDITY].includes(this.packetType)){
+                                //Automatically convert values
+                                this.data = CatNip.concatenateBytes(dataBytes)[0]/10;
+                                return true;
+                            }
+                            if (this.packetType==CatNip.DATA_ON){
+                                //Return true or false
+                                this.data = CatNip.concatenateBytes(dataBytes)[0]===1?true:false
+                                return true;
+                            }
+
+                            if (this.packetType==CatNip.DATA_CONSUMATION) {
+                                //default return
+                                this.data = CatNip.concatenateBytes(dataBytes)[0]
+                                return true;
+                            }
+                            throw "Wrong checksum"
+                        }
+                        throw "Wrong checksum"
                     case CatNip.FRAME_STATUS:
-                        console.log(this.frame[3])
-                        console.log(CatNip.calculateCheckSum(this.frame))
-                        console.log(this.frame)
                         if (CatNip.calculateCheckSum(this.frame)===this.frame[3]){
                             this.checksum = this.frame[3]
                             return true;
@@ -238,12 +259,21 @@ export default class CatNip {
         return this.packetType;
     }
 
-    get getData(): number | null {
+    get getData(): number | boolean | null {
         return this.data;
     }
 
-    get getClientMacAddress(): Uint8Array | null {
-        return this.clientMacAddress;
+    get getClientMacAddress(): string {
+        let returnData='';
+        if (this.clientMacAddress===null){
+            throw "Address not set"
+        }
+        for (let i = 0; i < this.clientMacAddress.length; i++) {
+            returnData+=this.clientMacAddress[i].toString(16)
+            if (i!==this.clientMacAddress.length-1)
+                returnData+='-'
+        }
+        return returnData
     }
 
     get getChecksum(): number | null {
