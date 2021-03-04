@@ -2,7 +2,7 @@ import CatNipError from "./CatNipError";
 
 export default class CatNip {
 
-    public static START_TRAM = 0x02
+    public static START_FRAME = 0x02
 
     /**
      * All Packet Type Of CAT NIP
@@ -22,18 +22,18 @@ export default class CatNip {
     public static ACTION_OFF = 0x60
 
     /**
-     * Frame Compositor
+     * Packet Compositor
      */
-    public static FRAME_HELLO = 0xFF
-    public static FRAME_STATUS = 0xBB
-    public static FRAME_DATA = 0xDD
+    public static PACKET_HELLO = 0xFF
+    public static PACKET_STATUS = 0xBB
+    public static PACKET_DATA = 0xDD
 
     /**
-     * Frame Lenght
+     * Packet Length
      */
-    public static FRAME_HELLO_LENGTH = 0x50
-    public static FRAME_STATUS_LENGTH = 0x20
-    public static FRAME_DATA_LENGTH = 0x30
+    public static PACKET_HELLO_LENGTH = 0x50
+    public static PACKET_STATUS_LENGTH = 0x20
+    public static PACKET_DATA_LENGTH = 0x30
 
     /**
      * CatNip Builder Attribute
@@ -76,16 +76,16 @@ export default class CatNip {
             throw new CatNipError(CatNipError.CANT_BE_NULL,"PacketType")
         }
 
-        if (this.frameType === CatNip.FRAME_HELLO) {
-            throw new CatNipError(CatNipError.ENCODE_FRAME_ERROR,`HELLO(${CatNip.FRAME_HELLO.toString(16)})`)
+        if (this.frameType === CatNip.PACKET_HELLO) {
+            throw new CatNipError(CatNipError.ENCODE_FRAME_ERROR,`HELLO(${CatNip.PACKET_HELLO.toString(16)})`)
         }
 
-        if (this.frameType === CatNip.FRAME_DATA) {
-            throw new CatNipError(CatNipError.ENCODE_FRAME_ERROR,`DATA(${CatNip.FRAME_DATA.toString(16)})`)
+        if (this.frameType === CatNip.PACKET_DATA) {
+            throw new CatNipError(CatNipError.ENCODE_FRAME_ERROR,`DATA(${CatNip.PACKET_DATA.toString(16)})`)
         }
 
-        if (this.frameType === CatNip.FRAME_STATUS) {
-            let tramBuilder = [CatNip.START_TRAM, this.packetLength,this.packetType]
+        if (this.frameType === CatNip.PACKET_STATUS) {
+            let tramBuilder = [CatNip.START_FRAME, this.packetLength,this.packetType]
             tramBuilder.push(CatNip.calculateCheckSum(tramBuilder))
             return this.frame = new Uint8Array(tramBuilder)
         }
@@ -100,20 +100,20 @@ export default class CatNip {
      */
     public decodeFrame(buffer:Buffer){
         this.frame = new Uint8Array(buffer);
-        if (this.frame[0]===CatNip.START_TRAM){
+        if (this.frame[0]===CatNip.START_FRAME){
             if (this.frame[1]/8===this.frame.length){
                 this.packetLength=this.frame[1]/8
                 this.setPacketType=this.frame[2]
                 if (this.packetType===null) throw new CatNipError(CatNipError.CANT_BE_NULL,"PacketType")
                 this.detectFrameType();
                 switch (this.frameType){
-                    case CatNip.FRAME_HELLO:
+                    case CatNip.PACKET_HELLO:
                         if (CatNip.calculateCheckSum(this.frame)===this.frame[9]) {
                             this.clientMacAddress = this.frame.slice(3,9)
                             return true;
                         }
                         throw new CatNipError(CatNipError.DECODE_FRAME_ERROR,"Checksum","FRAME_HELLO")
-                    case CatNip.FRAME_DATA:
+                    case CatNip.PACKET_DATA:
                         if (CatNip.calculateCheckSum(this.frame)===this.frame[5]){
                             const dataBytes = this.frame.slice(3,5)
                             this.checksum = this.frame[5]
@@ -136,7 +136,7 @@ export default class CatNip {
                             }
                         }
                         throw new CatNipError(CatNipError.DECODE_FRAME_ERROR,"Checksum","FRAME_DATA")
-                    case CatNip.FRAME_STATUS:
+                    case CatNip.PACKET_STATUS:
                         if (CatNip.calculateCheckSum(this.frame)===this.frame[3]){
                             this.checksum = this.frame[3]
                             return true;
@@ -163,8 +163,8 @@ export default class CatNip {
         }
 
         if (this.packetType === CatNip.STATUS_HELLO){
-            this.frameType = CatNip.FRAME_HELLO;
-            this.packetLength = CatNip.FRAME_HELLO_LENGTH;
+            this.frameType = CatNip.PACKET_HELLO;
+            this.packetLength = CatNip.PACKET_HELLO_LENGTH;
             return;
         }
 
@@ -178,8 +178,8 @@ export default class CatNip {
             CatNip.ACTION_ON,
             CatNip.ACTION_OFF
         ].includes(this.packetType)) {
-            this.frameType = CatNip.FRAME_STATUS;
-            this.packetLength = CatNip.FRAME_STATUS_LENGTH;
+            this.frameType = CatNip.PACKET_STATUS;
+            this.packetLength = CatNip.PACKET_STATUS_LENGTH;
             return ;
         }
 
@@ -189,8 +189,8 @@ export default class CatNip {
             CatNip.DATA_ON,
             CatNip.DATA_TEMPERATURE,
         ].includes(this.packetType)) {
-            this.frameType = CatNip.FRAME_DATA;
-            this.packetLength = CatNip.FRAME_DATA_LENGTH;
+            this.frameType = CatNip.PACKET_DATA;
+            this.packetLength = CatNip.PACKET_DATA_LENGTH;
         }
 
         throw new CatNipError(CatNipError.UNKNOWN_TYPE_ERROR,this.frameType,"frameType")
