@@ -1,0 +1,80 @@
++======================================+
+|  CAT NIP : NANACHI IOTUTURU PROTOCOL |
++======================================+
+
+Hello Frame
+0                 1                 2                 3
+ 0 1 2 3 4 5 6 7 8 0 1 2 3 4 5 6 7 8 0 1 2 3 4 5 6 7 8
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|   Start Frame   |  Packet Length  |   Packet Type   |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                 Client Mac Address                  |
+|                                                     |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|    Checksum     |
++-+-+-+-+-+-+-+-+-+
+
+Data Frame
+0                 1                 2                 3
+ 0 1 2 3 4 5 6 7 8 0 1 2 3 4 5 6 7 8 0 1 2 3 4 5 6 7 8
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|   Start Frame   |  Packet Length  |   Packet Type   |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|               Data                |     Checksum    |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+Status Frame
+0                 1                 2                 3
+ 0 1 2 3 4 5 6 7 8 0 1 2 3 4 5 6 7 8 0 1 2 3 4 5 6 7 8
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|   Start Frame   |   Packet Length |   Packet Type   |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|    Checksum     |
++-+-+-+-+-+-+-+-+-+
+
++===========================+
+|  COMPOSITION DES TRAME    |
++===========================+
+
+START FRAME
+    La start frame permet de déclencher l'analyse d'un socket entrant elle est toujours égales à 0x02
+
+PACKET LENGTH
+    Le packet length est le nombre de bit contenu dans la tram active
+
+PACKET TYPE
+    STATUS PACKET
+        Les type de packet commençant par 0x2 sont des packet de status
+        * 0x2A : Hello Frame : Envoyer lorsque la prise souhaite se connecter au serveur
+              -> tant que le serveur ne retourne pas un Status Frame de type 0x2B, le packet continue d'être envoyer
+        * 0x2B : Status Frame : Envoyer par le server ou la prise afin de savoir si la prise est en vie
+        * 0x2C : Status Frame : Envoyer pour informer la prise que les données ont été reçues
+
+    ASK PACKET
+        Les type de packet commençant par 0x4 sont des packets de demande de données
+        * 0x4A : Status Frame : Demander la mesure de la température
+        * 0x4B : Status Frame : Demander la mesure de l'humidité
+        * 0x4C : Status Frame : Demander la mesure des watt
+        * 0x4D : Status Frame : Demander si la prise et allumer ou éteindre
+
+    DATA PACKET
+        Les type de packet commençant par 0x5 sont des packets d'envoi de données
+              -> tant que le serveur ne retourne pas une alive Frame de type 0x2C, les packets de données continue d'être envoyer.
+        * 0x5A : Data Send Frame : Envoyer la température (multiplier par 10 et envoyer sous forme d'entier exemple 41.56°C sera envoyer sous la forme 415)
+        * 0x5B : Data Send Frame : Envoyer l'humidité en % (multiplier par 10 et envoyer sous forme d'entier exemple 17.751% sera envoyer sous la forme 177)
+        * 0x5C : Data Send Frame : Envoyer la mesure de consommation en watt
+        * 0x5D : Data Send Frame : Envoyer l'état de la prise (allumée ou éteinte).
+
+    ACTION PACKET
+        PLes type de packet commençant par 0x6 sont des packets d'action sur la prise
+        * 0x60 : Status Frame : Éteindre la prise
+        * 0x61 : Status Frame : Allumer la prise
+
+CLIENT MAC ADDRESS
+    Le client mac address et une partie du packet dédier à envoyer l'address mac de l'appareil lorsque il cherche à se reconnecter au réseau.
+
+CHECKSUM
+    Le checksum fait le checksum sur le header du packet c'est à dire
+        Start Frame + Package Length + Package Type
+        ou sur
+        Start Frame + Package Type
