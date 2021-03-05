@@ -7,14 +7,14 @@ import cookieParser from 'cookie-parser';
 var sitemap = require('express-sitemap')();
 const sassMiddleware = require('node-sass-middleware');
 require('dotenv').config()
-import logger from 'morgan';
+//import logger from 'morgan';
 import SocketIO from "socket.io";
 
 
 const app: any = express();
 
 app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'pug');
+app.set('view engine', 'ejs');
 
 //app.use(logger('dev'));
 app.use(express.json());
