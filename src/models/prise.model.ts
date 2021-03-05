@@ -12,7 +12,7 @@ export class prise extends Model {
     nom!: string;
 
     static relationMappings = {
-        himidite: {
+        humidite: {
             relation: Model.HasManyRelation,
             modelClass: humidite,
             join: {

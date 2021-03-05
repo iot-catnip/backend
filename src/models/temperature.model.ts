@@ -1,7 +1,6 @@
 import { Model } from 'objection';
 import knex from '../knex'
 import { subController } from '../subController'
-import {prise} from "./prise.model";
 
 Model.knex(knex)
 
@@ -17,7 +16,7 @@ export class temperature extends Model {
     static relationMappings = {
         prise: {
             relation: Model.HasOneRelation,
-            modelClass: prise,
+            modelClass:  __dirname + '/prise.model',
             join: {
                 from: 'temperatures.prise_id',
                 to: 'prises.id'
