@@ -210,7 +210,7 @@ export default class CatNip {
         for (let i = 0; i < bytesArr.length; i++) {
             sum += bytesArr[i];
         }
-        return sum / 16 >> 0;
+        return sum % 16 >> 0;
     }
 
     /**
