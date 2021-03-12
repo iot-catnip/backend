@@ -10,6 +10,5 @@ export default [
     {path: "/api/humidite", controller: "humiditeApiController", type: "get"},
     {path: "/api/temperature", controller: "temperatureApiController", type: "get"},
     {path: "/api/watt", controller: "wattApiController", type: "get"},
-    {path: "*", controller: "404HandleController", type: "get"},
-
+    {path: "*", controller: "404HandleController", type: "get"}
 ]
