@@ -5,7 +5,6 @@ import middleWare from "./middlewares"
 import path from "path";
 import cookieParser from 'cookie-parser';
 var sitemap = require('express-sitemap')();
-const sassMiddleware = require('node-sass-middleware');
 require('dotenv').config()
 //import logger from 'morgan';
 import SocketIO from "socket.io";
@@ -20,12 +19,6 @@ app.set('view engine', 'ejs');
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(sassMiddleware({
-  src: path.join(__dirname, 'public'),
-  dest: path.join(__dirname, 'public'),
-  indentedSyntax: process.env.INDENTED_SYNTAX||true, // true = .sass and false = .scss
-  sourceMap: true
-}));
 app.use(express.static(path.join(__dirname, 'public')));
 
 
@@ -126,7 +119,7 @@ function generateSiteMap(){
 }
 
 function startServer(server: any) {
-  server.listen(process.env.APP_PORT || 3000, () => console.log("\x1b[32m[Info] > Server Running",'\x1b[0m'));
+  server.listen(process.env.APP_PORT || 3000, () => console.log("\x1b[32m[Info] > Server Running",'\x1b[0m'));
 }
 
 async function init() {
