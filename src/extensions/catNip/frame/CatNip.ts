@@ -191,6 +191,7 @@ export default class CatNip {
         ].includes(this.packetType)) {
             this.frameType = CatNip.PACKET_DATA;
             this.packetLength = CatNip.PACKET_DATA_LENGTH;
+            return;
         }
 
         throw new CatNipError(CatNipError.UNKNOWN_TYPE_ERROR,this.frameType,"frameType")
