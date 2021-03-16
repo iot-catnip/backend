@@ -17,8 +17,8 @@ export default class CatNip {
     public static DATA_TEMPERATURE = 0x5A
     public static DATA_HUMIDITY = 0x5B
     public static DATA_CONSUMATION = 0x5C
-    public static DATA_PORT = 0x5F
     public static DATA_ON = 0x5D
+    public static DATA_PORT = 0x5F
     public static ACTION_ON = 0x61
     public static ACTION_OFF = 0x60
 
@@ -258,8 +258,13 @@ export default class CatNip {
      * @return Uint8Array
      */
     public static splitBytes(data : number) : Uint8Array{
-        //@todo
-        return new Uint8Array
+        let b = BigInt(data);
+        let result = [];
+        while (b > 0) {
+            result.push(Number(b % BigInt(256)));
+            b /= BigInt(256);
+        }
+        return Uint8Array.from(result);
     }
 
     /**
