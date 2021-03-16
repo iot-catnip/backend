@@ -64,6 +64,7 @@ PACKET TYPE
         * 0x5B : Data Send Frame : Envoyer l'humidité en % (multiplier par 10 et envoyer sous forme d'entier exemple 17.751% sera envoyer sous la forme 177)
         * 0x5C : Data Send Frame : Envoyer la mesure de consommation en watt
         * 0x5D : Data Send Frame : Envoyer l'état de la prise (allumée ou éteinte).
+        * 0x5F : Data Send Frame : Envois le port du serveur sur lequel doit communiquer la prise.
 
     ACTION PACKET
         PLes type de packet commençant par 0x6 sont des packets d'action sur la prise

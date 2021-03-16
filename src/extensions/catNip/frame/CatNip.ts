@@ -17,6 +17,7 @@ export default class CatNip {
     public static DATA_TEMPERATURE = 0x5A
     public static DATA_HUMIDITY = 0x5B
     public static DATA_CONSUMATION = 0x5C
+    public static DATA_PORT = 0x5F
     public static DATA_ON = 0x5D
     public static ACTION_ON = 0x61
     public static ACTION_OFF = 0x60
@@ -118,6 +119,10 @@ export default class CatNip {
                             const dataBytes = this.frame.slice(3,5)
                             this.checksum = this.frame[5]
 
+                            if (this.packetType == CatNip.DATA_PORT){
+                                throw new CatNipError(CatNipError.DECODE_FRAME_ERROR,"Not client frame")
+                            }
+
                             if ([CatNip.DATA_TEMPERATURE,CatNip.DATA_HUMIDITY].includes(this.packetType)){
                                 //Automatically convert values
                                 this.data = CatNip.concatenateBytes(dataBytes)[0]/10;
@@ -188,6 +193,7 @@ export default class CatNip {
             CatNip.DATA_HUMIDITY,
             CatNip.DATA_ON,
             CatNip.DATA_TEMPERATURE,
+            CatNip.DATA_PORT
         ].includes(this.packetType)) {
             this.frameType = CatNip.PACKET_DATA;
             this.packetLength = CatNip.PACKET_DATA_LENGTH;
@@ -284,6 +290,7 @@ export default class CatNip {
             CatNip.DATA_HUMIDITY,
             CatNip.DATA_ON,
             CatNip.DATA_TEMPERATURE,
+            CatNip.DATA_PORT
         ].includes(packetType)) {
             this.packetType = packetType
             return;
