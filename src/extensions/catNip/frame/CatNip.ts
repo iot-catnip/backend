@@ -82,6 +82,18 @@ export default class CatNip {
         }
 
         if (this.frameType === CatNip.PACKET_DATA) {
+            if (this.packetType==CatNip.DATA_PORT){
+                if (typeof this.data =="number") {
+                    const encodedData = CatNip.splitBytes(this.data);
+                    if (encodedData.length>=2){
+                        let tramBuilder = [CatNip.START_FRAME, CatNip.PACKET_DATA_LENGTH,encodedData[0],encodedData[1]]
+                        tramBuilder.push(CatNip.calculateCheckSum(tramBuilder))
+                        return this.frame = new Uint8Array(tramBuilder)
+                    }
+                    throw new CatNipError(CatNipError.ENCODE_FRAME_ERROR,"Data length error")
+                }
+                throw new CatNipError(CatNipError.ENCODE_FRAME_ERROR,"can't send boolean in DATA_PORT packet")
+            }
             throw new CatNipError(CatNipError.ENCODE_FRAME_ERROR,`DATA(${CatNip.PACKET_DATA.toString(16)})`)
         }
 
@@ -238,6 +250,16 @@ export default class CatNip {
             }
         }
         return returnedValues
+    }
+
+    /**
+     * Function to split any number into an array
+     * @param data
+     * @return Uint8Array
+     */
+    public static splitBytes(data : number) : Uint8Array{
+        //@todo
+        return new Uint8Array
     }
 
     /**
