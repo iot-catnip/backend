@@ -79,3 +79,9 @@ CHECKSUM
         Start Frame + Package Length + Package Type
         ou sur
         Start Frame + Package Type
+
+Port par default:
+    Le port de communication par default pour l'assignement de port et le 7788
+
+    La plage des ports de communication des prises et comprise entre le  25000 & 25100
+        -> cela sous entant que le serveur ne peut pas gérer plus de 100 prises.
