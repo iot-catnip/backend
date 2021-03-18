@@ -12,22 +12,25 @@ createServer(async function (socket:Socket) {
         try {
             cat.decodeFrame(chunk);
             console.log(cat.getFrameType);
-            console.log(cat.getData);
+            console.log(cat.getClientMacAddress);
+            let catresp = new CatNip();
+            catresp.setPacketType = CatNip.DATA_PORT;
+            catresp.setData = 25001;
+            catresp.encodeFrame();
+            console.log(catresp.getFrame)
+            socket.write(catresp.getFrame)
         }catch (e){
             console.log(e);
         }
     });
+}).listen(7788);
 
-    setInterval(function (){
-        let cat = new CatNip();
-        cat.setPacketType = CatNip.ASK_TEMPERATURE;
-        cat.encodeFrame();
-        socket.write(cat.getFrame);
-        console.log(cat.getFrame);
-        console.log('datasend')
-    },5000);
-}).listen(6000);
-
+createServer(async function (socket:Socket) {
+    console.log("connected client");
+    socket.on('data', function (chunk:Buffer) {
+        console.log(chunk)
+    })
+}).listen(25001);
 /*
 // client
 let s = new Socket();

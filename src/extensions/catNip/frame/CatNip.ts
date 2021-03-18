@@ -85,8 +85,9 @@ export default class CatNip {
             if (this.packetType==CatNip.DATA_PORT){
                 if (typeof this.data =="number") {
                     const encodedData = CatNip.splitBytes(this.data);
+                    console.log(encodedData)
                     if (encodedData.length>=2){
-                        let tramBuilder = [CatNip.START_FRAME, CatNip.PACKET_DATA_LENGTH,encodedData[0],encodedData[1]]
+                        let tramBuilder = [CatNip.START_FRAME, CatNip.PACKET_DATA_LENGTH,this.packetType,encodedData[0],encodedData[1]]
                         tramBuilder.push(CatNip.calculateCheckSum(tramBuilder))
                         return this.frame = new Uint8Array(tramBuilder)
                     }
@@ -178,7 +179,6 @@ export default class CatNip {
         if (this.packetType===null){
             throw new CatNipError(CatNipError.CANT_BE_NULL,"PacketType")
         }
-
         if (this.packetType === CatNip.STATUS_HELLO){
             this.frameType = CatNip.PACKET_HELLO;
             this.packetLength = CatNip.PACKET_HELLO_LENGTH;
@@ -349,6 +349,13 @@ export default class CatNip {
 
     get getData(): number | boolean | null {
         return this.data;
+    }
+
+    set setData(port : number){
+        if (this.packetType!=CatNip.DATA_PORT){
+            throw new CatNipError(CatNipError.UNKNOWN_TYPE_ERROR,"Can't apply data if packet type is not DATA_PORT")
+        }
+        this.data = port;
     }
 
     get getClientMacAddress(): string {
