@@ -1,7 +1,6 @@
 import { Model } from 'objection';
 import knex from '../knex'
 import { subController } from '../subController'
-import {prise} from "./prise.model";
 
 Model.knex(knex)
 
@@ -17,10 +16,10 @@ export class watt extends Model {
     static relationMappings = {
         prise: {
             relation: Model.HasOneRelation,
-            modelClass: prise,
+            modelClass:  __dirname + '/prise.model',
             join: {
                 from: 'watts.prise_id',
-                to: 'prises.prise_id'
+                to: 'prises.id'
             }
         }
     }

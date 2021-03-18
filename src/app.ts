@@ -4,28 +4,18 @@ import route from "./route";
 import middleWare from "./middlewares"
 import path from "path";
 import cookieParser from 'cookie-parser';
-var sitemap = require('express-sitemap')();
-const sassMiddleware = require('node-sass-middleware');
 require('dotenv').config()
-//import logger from 'morgan';
 import SocketIO from "socket.io";
 
 
 const app: any = express();
 
 app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'pug');
+app.set('view engine', 'ejs');
 
-//app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(sassMiddleware({
-  src: path.join(__dirname, 'public'),
-  dest: path.join(__dirname, 'public'),
-  indentedSyntax: process.env.INDENTED_SYNTAX||true, // true = .sass and false = .scss
-  sourceMap: true
-}));
 app.use(express.static(path.join(__dirname, 'public')));
 
 
@@ -120,13 +110,8 @@ async function importRoutes(){
   console.log('\x1b[36m[Info] > Toutes les routes sont enregistré.','\x1b[0m');
 }
 
-function generateSiteMap(){
-  sitemap.generate(app); // generate sitemap from express route, you can set generate inside sitemap({})
-  sitemap.XMLtoFile(__dirname+'/public/sitemap.xml'); // write this map to file
-}
-
 function startServer(server: any) {
-  server.listen(process.env.APP_PORT || 3000, () => console.log("\x1b[32m[Info] > Server Running",'\x1b[0m'));
+  server.listen(process.env.APP_PORT || 3000, () => console.log("\x1b[32m[Info] > Server Running",'\x1b[0m'));
 }
 
 async function init() {
@@ -134,7 +119,6 @@ async function init() {
   importMiddlewares(); //import all middlewares
   await importRoutes(); // import all routes synchronously
   registerErrorMiddleWare(); // register the last middleware (404)
-  generateSiteMap(); // generate the site map
 
   var server = require("http").createServer(app); // create the http server with express app
   var io: SocketIO.Server = require("socket.io")(server); // declare socket.io server
