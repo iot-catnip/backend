@@ -1,35 +1,18 @@
-import {prise} from "../../../models/prise.model";
-import {createServer, Socket} from "net";
+import {Socket, createServer, Server} from "net";
 import CatNip from "../frame/CatNip";
+import {prise} from "../../../models/prise.model";
+import SocketCollection from "./socketCollection";
+import CatNipClient from "./CatNipClient";
 
-export default class CatNipServer{
-    private port:number;
-    private plug:prise;
-    private socket: Socket | undefined;
-
-    constructor(plug:prise,port:number) {
-        this.plug = plug;
-        this.port = port;
+export default class CatNipServer {
+    public static start(){
+        var server = createServer();
+        console.log("\x1b[32m[Info] > CATNIP Server Running",'\x1b[0m');
+        server.on('connection', conn => {
+            new CatNipClient(conn);
+        });
+        server.listen(7788);
     }
-
-    public start(){
-        createServer(socket => {
-            this.connexionListener(socket)
-            this.socket;
-        }).listen(this.port)
-    }
-
-    private connexionListener(socket:Socket){
-        socket.on("data", async (chunk: Buffer) =>{
-            let cat = new CatNip();
-            cat.decodeFrame(chunk);
-        })
-    }
-
-    private askForData(){
-        //this.socket.write()
-    }
-
-
-
 }
+
+const catNipServer = new CatNipServer()

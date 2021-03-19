@@ -6,7 +6,7 @@ import path from "path";
 import cookieParser from 'cookie-parser';
 require('dotenv').config()
 import SocketIO from "socket.io";
-import HandshakeServer from "./extensions/catNip/server/HandshakeServer";
+import CatNipServer from "./extensions/catNip/server/CatNipServer";
 
 
 const app: any = express();
@@ -116,7 +116,6 @@ function startServer(server: any) {
 }
 
 async function init() {
-  HandshakeServer.start();
   app.use(sessionMiddleware); //Register session middleware
   importMiddlewares(); //import all middlewares
   await importRoutes(); // import all routes synchronously
@@ -136,6 +135,7 @@ async function init() {
     console.log('\x1b[36m[Info] > Socket.io listening','\x1b[0m')
   });
   // start the final server
+  CatNipServer.start();
   startServer(server);
   return io;
 }
