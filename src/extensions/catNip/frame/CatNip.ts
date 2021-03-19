@@ -85,7 +85,7 @@ export default class CatNip {
             if (this.packetType==CatNip.DATA_PORT){
                 if (typeof this.data =="number") {
                     const encodedData = CatNip.splitBytes(this.data);
-                    console.log(encodedData)
+                    //console.log(encodedData)
                     if (encodedData.length>=2){
                         let tramBuilder = [CatNip.START_FRAME, CatNip.PACKET_DATA_LENGTH,this.packetType,encodedData[0],encodedData[1]]
                         tramBuilder.push(CatNip.calculateCheckSum(tramBuilder))

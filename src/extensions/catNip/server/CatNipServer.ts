@@ -5,7 +5,7 @@ import CatNip from "../frame/CatNip";
 export default class CatNipServer{
     private port:number;
     private plug:prise;
-    private socket:Socket;
+    private socket: Socket | undefined;
 
     constructor(plug:prise,port:number) {
         this.plug = plug;
