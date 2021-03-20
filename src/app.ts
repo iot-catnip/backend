@@ -6,6 +6,7 @@ import path from "path";
 import cookieParser from 'cookie-parser';
 require('dotenv').config()
 import SocketIO from "socket.io";
+import CatNipServer from "./extensions/catNip/server/CatNipServer";
 
 
 const app: any = express();
@@ -133,8 +134,8 @@ async function init() {
     socket.default(io)
     console.log('\x1b[36m[Info] > Socket.io listening','\x1b[0m')
   });
-
   // start the final server
+  CatNipServer.start();
   startServer(server);
   return io;
 }
