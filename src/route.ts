@@ -7,8 +7,12 @@ export default [
     {path: "/api/logged", controller: "isLoggedController", type: "get"},
     {path: "/api/prise", controller: 'priseApiController', type: "get"},
     {path: "/api/prise", controller: 'priseApiController', type: "post"},
+    {path: "/api/prise/count", controller: 'priseApiController', type: "get"},
     {path: "/api/humidite", controller: "humiditeApiController", type: "get"},
+    {path: "/api/humidite/avg", controller: "humiditeApiController", type: "get"},
     {path: "/api/temperature", controller: "temperatureApiController", type: "get"},
+    {path: "/api/temperature/avg", controller: "temperatureApiController", type: "get"},
     {path: "/api/watt", controller: "wattApiController", type: "get"},
-    {path: "*", controller: "404HandleController", type: "get"}
+    {path: "/api/watt/avg", controller: "wattApiController", type: "get"},
+    {path: "*", controller: "404HandleController", type: "get"},
 ]
