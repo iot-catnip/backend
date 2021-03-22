@@ -7,6 +7,7 @@ export default class wattApiController extends controller {
         switch (this.request.url.split('/')[3]) {
             case 'avg':
                 data = await watt.query().select().avg('valeur');
+                this.response.writeHead(200);
                 // @ts-ignore
                 this.response.json({avg: data[0][Object.keys(data[0])[0]]});
             default:
