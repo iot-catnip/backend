@@ -18,6 +18,7 @@ export default class CatNip {
     public static DATA_HUMIDITY = 0x5B
     public static DATA_CONSUMATION = 0x5C
     public static DATA_ON = 0x5D
+    public static DATA_PORT = 0x5F
     public static ACTION_ON = 0x61
     public static ACTION_OFF = 0x60
 
@@ -81,6 +82,19 @@ export default class CatNip {
         }
 
         if (this.frameType === CatNip.PACKET_DATA) {
+            if (this.packetType==CatNip.DATA_PORT){
+                if (typeof this.data =="number") {
+                    const encodedData = CatNip.splitBytes(this.data);
+                    //console.log(encodedData)
+                    if (encodedData.length>=2){
+                        let tramBuilder = [CatNip.START_FRAME, CatNip.PACKET_DATA_LENGTH,this.packetType,encodedData[0],encodedData[1]]
+                        tramBuilder.push(CatNip.calculateCheckSum(tramBuilder))
+                        return this.frame = new Uint8Array(tramBuilder)
+                    }
+                    throw new CatNipError(CatNipError.ENCODE_FRAME_ERROR,"Data length error")
+                }
+                throw new CatNipError(CatNipError.ENCODE_FRAME_ERROR,"can't send boolean in DATA_PORT packet")
+            }
             throw new CatNipError(CatNipError.ENCODE_FRAME_ERROR,`DATA(${CatNip.PACKET_DATA.toString(16)})`)
         }
 
@@ -117,6 +131,10 @@ export default class CatNip {
                         if (CatNip.calculateCheckSum(this.frame)===this.frame[5]){
                             const dataBytes = this.frame.slice(3,5)
                             this.checksum = this.frame[5]
+
+                            if (this.packetType == CatNip.DATA_PORT){
+                                throw new CatNipError(CatNipError.DECODE_FRAME_ERROR,"Not client frame")
+                            }
 
                             if ([CatNip.DATA_TEMPERATURE,CatNip.DATA_HUMIDITY].includes(this.packetType)){
                                 //Automatically convert values
@@ -161,7 +179,6 @@ export default class CatNip {
         if (this.packetType===null){
             throw new CatNipError(CatNipError.CANT_BE_NULL,"PacketType")
         }
-
         if (this.packetType === CatNip.STATUS_HELLO){
             this.frameType = CatNip.PACKET_HELLO;
             this.packetLength = CatNip.PACKET_HELLO_LENGTH;
@@ -188,9 +205,11 @@ export default class CatNip {
             CatNip.DATA_HUMIDITY,
             CatNip.DATA_ON,
             CatNip.DATA_TEMPERATURE,
+            CatNip.DATA_PORT
         ].includes(this.packetType)) {
             this.frameType = CatNip.PACKET_DATA;
             this.packetLength = CatNip.PACKET_DATA_LENGTH;
+            return;
         }
 
         throw new CatNipError(CatNipError.UNKNOWN_TYPE_ERROR,this.frameType,"frameType")
@@ -231,6 +250,21 @@ export default class CatNip {
             }
         }
         return returnedValues
+    }
+
+    /**
+     * Function to split any number into an array
+     * @param data
+     * @return Uint8Array
+     */
+    public static splitBytes(data : number) : Uint8Array{
+        let b = BigInt(data);
+        let result = [];
+        while (b > 0) {
+            result.push(Number(b % BigInt(256)));
+            b /= BigInt(256);
+        }
+        return Uint8Array.from(result);
     }
 
     /**
@@ -283,6 +317,7 @@ export default class CatNip {
             CatNip.DATA_HUMIDITY,
             CatNip.DATA_ON,
             CatNip.DATA_TEMPERATURE,
+            CatNip.DATA_PORT
         ].includes(packetType)) {
             this.packetType = packetType
             return;
@@ -314,6 +349,13 @@ export default class CatNip {
 
     get getData(): number | boolean | null {
         return this.data;
+    }
+
+    set setData(port : number){
+        if (this.packetType!=CatNip.DATA_PORT){
+            throw new CatNipError(CatNipError.UNKNOWN_TYPE_ERROR,"Can't apply data if packet type is not DATA_PORT")
+        }
+        this.data = port;
     }
 
     get getClientMacAddress(): string {
