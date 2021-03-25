@@ -6,8 +6,6 @@ export default class authController extends controllerMiddelware{
         const token = this.request.headers.authorization?.replace("Bearer ", "");
         let datastore = DataStoreController.getInstance();
         let loggedArray = datastore.getData("logged");
-        console.log(token);
-        console.log(loggedArray)
         if(loggedArray === undefined){
             loggedArray = datastore.addData("logged", []);
         }

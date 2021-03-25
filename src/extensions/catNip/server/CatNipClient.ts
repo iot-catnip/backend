@@ -52,7 +52,6 @@ export default class CatNipClient{
 
     public sendRequest(type: number): void {
         try{
-            console.log()
             let catNip = new CatNip();
             catNip.setPacketType = type;
             catNip.encodeFrame();

@@ -2,6 +2,8 @@ import controller from "../../app/controller";
 import {temperature} from "../../models/temperature.model";
 import * as QueryString from "querystring";
 import dataMerger from "../../extensions/utils/dataMerger";
+import {humidite} from "../../models/humidite.model";
+import {watt} from "../../models/watt.model";
 
 export default class temperatureApiController extends controller {
     async index() {
@@ -13,6 +15,18 @@ export default class temperatureApiController extends controller {
             this.response.json({avg:data[0][Object.keys(data[0])[0]]});
         }else if (this.params.interval){
             switch (this.params.interval){
+                case 'last':
+                    data = await temperature.query().select('valeur', 'date_mesure', 'prise_id').joinRelated('prise').orderBy('date_mesure','desc').limit(1);
+                    this.response.json({
+                        data: data
+                    });
+                    break;
+                case '20m':
+                    data = await temperature.query().select('valeur', 'date_mesure', 'prise_id').joinRelated('prise').where('date_mesure','>=',Date.now().valueOf()-1200000);
+                    this.response.json({
+                        data: data
+                    });
+                    break;
                 case '1h':
                     data = await temperature.query().select('valeur', 'date_mesure', 'prise_id').joinRelated('prise').where('date_mesure','>=',Date.now().valueOf()-3600000);
                     this.response.json({
@@ -22,7 +36,7 @@ export default class temperatureApiController extends controller {
                 case '5h':
                     data = await temperature.query().select('valeur', 'date_mesure', 'prise_id').joinRelated('prise').where('date_mesure','>=',Date.now().valueOf()-18000000);
                     this.response.json({
-                        data: dataMerger(data,600000)
+                        data: dataMerger(data,300000)
                     });
                     break;
 

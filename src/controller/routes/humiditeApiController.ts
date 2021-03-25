@@ -12,7 +12,19 @@ export default class humiditeApiController extends controller{
             // @ts-ignore
             this.response.json({avg:data[0][Object.keys(data[0])[0]]});
         }else if (this.params.interval){
-            switch (this.request.url.split('/')[3]){
+            switch (this.params.interval){
+                case 'last':
+                    data = await humidite.query().select('valeur', 'date_mesure', 'prise_id').joinRelated('prise').orderBy('date_mesure','desc').limit(1);
+                    this.response.json({
+                        data: data
+                    });
+                    break;
+                case '20m':
+                    data = await humidite.query().select('valeur', 'date_mesure', 'prise_id').joinRelated('prise').where('date_mesure','>=',Date.now().valueOf()-1200000);
+                    this.response.json({
+                        data: data
+                    });
+                    break;
                 case '1h':
                     data = await humidite.query().select('valeur', 'date_mesure', 'prise_id').joinRelated('prise').where('date_mesure','>=',Date.now().valueOf()-3600000);
                     this.response.json({
@@ -22,7 +34,7 @@ export default class humiditeApiController extends controller{
                 case '5h':
                     data = await humidite.query().select('valeur', 'date_mesure', 'prise_id').joinRelated('prise').where('date_mesure','>=',Date.now().valueOf()-18000000);
                     this.response.json({
-                        data: dataMerger(data,600000)
+                        data: dataMerger(data,300000)
                     });
                     break;
 

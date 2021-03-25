@@ -8,7 +8,7 @@ export default function dataMerger (data:any,interval:number){
             dataToSimplify.push(data[i].valeur)
         }else {
             newData.push(data[i]);
-            newData[newData.length-1].valeur= middle(dataToSimplify);
+            newData[newData.length-1].valeur= avg(dataToSimplify);
             dataToSimplify = []
             lastDate = newData[newData.length-1].date_mesure
         }
@@ -21,5 +21,11 @@ function middle(arr:Array<number>){
     let lowMiddle = Math.floor((arr.length - 1) / 2);
     let highMiddle = Math.ceil((arr.length - 1) / 2);
     return (arr[lowMiddle] + arr[highMiddle]) / 2;
+}
+
+function avg(arr:Array<number>){
+    let count = arr.length;
+    let res = arr.reduce((previous, current) => current += previous);
+    return Math.round((res /= count) * 100) / 100;
 }
 
